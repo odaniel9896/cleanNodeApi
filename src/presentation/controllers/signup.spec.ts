@@ -38,6 +38,7 @@ describe("SingUp Controller", () => {
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissigParamError("name"));
   });
+
   test("Should return 404 if no email is provider", () => {
     const { sut } = makeSut();
     const httpRequest = {
@@ -51,6 +52,7 @@ describe("SingUp Controller", () => {
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissigParamError("email"));
   });
+
   test("Should return 404 if no password is provider", () => {
     const { sut } = makeSut();
     const httpRequest = {
@@ -64,6 +66,7 @@ describe("SingUp Controller", () => {
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissigParamError("password"));
   });
+
   test("Should return 404 if no password confirmation is provider", () => {
     const { sut } = makeSut();
     const httpRequest = {
@@ -79,6 +82,7 @@ describe("SingUp Controller", () => {
       new MissigParamError("passwordConfirmation")
     );
   });
+
   test("Should return 404 if if an invalid email is provider", () => {
     const { sut, emailValidatorStub } = makeSut();
     jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
@@ -93,5 +97,21 @@ describe("SingUp Controller", () => {
     const httpResponse = sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new InvalidParamError("email"));
+  });
+
+  test("Should call EmailValidator with correct email", () => {
+    const { sut, emailValidatorStub } = makeSut();
+    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
+    const httpRequest = {
+      body: {
+        name: "any_name",
+        email: "any_email@gmail.com",
+        password: "any_password",
+        passwordConfirmation: "any_password",
+      },
+    };
+    sut.handle(httpRequest);
+    expect(isValidSpy).toHaveBeenCalledWith('any_email@gmail.com')
+   
   });
 });
