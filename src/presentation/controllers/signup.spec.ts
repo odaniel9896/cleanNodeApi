@@ -13,7 +13,7 @@ describe('SingUp Controller', () => {
     }
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body).toEqual(new MissigParamError('Missing param: name'))
+    expect(httpResponse.body).toEqual(new MissigParamError('name'))
   })
   test('Should return 404 if no email is provider', () => {
     const sut = new SignUpController()
@@ -26,6 +26,19 @@ describe('SingUp Controller', () => {
     }
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body).toEqual(new MissigParamError('Missing param: email'))
+    expect(httpResponse.body).toEqual(new MissigParamError('email'))
+  })
+  test('Should return 404 if no password is provider', () => {
+    const sut = new SignUpController()
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email : 'any_email@gmail.com',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new MissigParamError('password'))
   })
 })
