@@ -7,14 +7,26 @@ interface SutTypes {
   emailValidatorStub: EmailValidator;
 }
 
-const makeSut = (): SutTypes => {
+const makeEmailValidatorWithError = (): EmailValidator => {
+  class EmailValidatorStub implements EmailValidator {
+    isValid(email: string): boolean {
+      throw new Error();
+    }
+  }
+  return new EmailValidatorStub();
+};
+
+const makeEmailValidator = (): EmailValidator => {
   class EmailValidatorStub implements EmailValidator {
     isValid(email: string): boolean {
       return true;
     }
   }
+  return new EmailValidatorStub();
+};
 
-  const emailValidatorStub = new EmailValidatorStub();
+const makeSut = (): SutTypes => {
+  const emailValidatorStub = makeEmailValidator();
 
   const sut = new SignUpController(emailValidatorStub);
   return {
@@ -84,7 +96,7 @@ describe("SingUp Controller", () => {
 
   test("Should return 404 if if an invalid email is provider", () => {
     const { sut, emailValidatorStub } = makeSut();
-    jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
+    jest.spyOn(emailValidatorStub, "isValid").mockReturnValueOnce(false);
     const httpRequest = {
       body: {
         name: "any_name",
@@ -100,7 +112,7 @@ describe("SingUp Controller", () => {
 
   test("Should call EmailValidator with correct email", () => {
     const { sut, emailValidatorStub } = makeSut();
-    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
+    const isValidSpy = jest.spyOn(emailValidatorStub, "isValid");
     const httpRequest = {
       body: {
         name: "any_name",
@@ -110,17 +122,12 @@ describe("SingUp Controller", () => {
       },
     };
     sut.handle(httpRequest);
-    expect(isValidSpy).toHaveBeenCalledWith('any_email@gmail.com')
-   
+    expect(isValidSpy).toHaveBeenCalledWith("any_email@gmail.com");
   });
 
   test("Should return 500 if EmailValidator throws", () => {
-    class EmailValidatorStub implements EmailValidator {
-      isValid(email: string): boolean {
-        throw new Error()
-      }
-    }
-    const emailValidatorStub = new EmailValidatorStub();
+    const emailValidatorStub = makeEmailValidatorWithError();
+
     const sut = new SignUpController(emailValidatorStub);
 
     const httpRequest = {

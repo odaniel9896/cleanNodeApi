@@ -1,4 +1,9 @@
-import { HttpResponse, HttpRequest, EmailValidator, Controller } from "../protocols";
+import {
+  HttpResponse,
+  HttpRequest,
+  EmailValidator,
+  Controller,
+} from "../protocols";
 import { MissigParamError, InvalidParamError } from "../errors";
 import { badRequest, serverError } from "../helpers/http-helper";
 
@@ -14,19 +19,21 @@ export class SignUpController implements Controller {
         "email",
         "password",
         "passwordConfirmation",
-      ]; 
+      ];
+
       for (const field of requiredField) {
         if (!httpRequest.body[field]) {
           return badRequest(new MissigParamError(field));
         }
       }
+
       const isValid = this.emailValidator.isValid(httpRequest.body.email);
 
       if (!isValid) {
         return badRequest(new InvalidParamError("email"));
       }
     } catch (error) {
-      return serverError()
+      return serverError();
     }
   }
 }
